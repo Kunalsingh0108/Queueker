@@ -1,0 +1,28 @@
+# Node modules
+node_modules/
+Queueker-Backend/node_modules/
+Queueker-React/node_modules/
+
+# Build output
+Queueker-React/dist/
+Queueker-React/dist-ssr/
+
+# Environment files (NEVER commit these - contain secrets!)
+.env
+Queueker-Backend/.env
+Queueker-React/.env
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Queueker – Smart Queue Management</title>
+  <meta name="description" content="Queueker: Digital queue management for banks, colleges, shops, hospitals and more." />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .hero {
+      min-height: 90vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; padding: 5rem 2rem 3rem;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.25);
+      border-radius: 100px; padding: 0.4rem 1rem; margin-bottom: 1.75rem;
+      font-size: 0.85rem; font-weight: 600; color: var(--accent-bank);
+      animation: fadeInUp 0.6s both;
+    }
+    .hero-eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-bank); animation: pulse 2s infinite; }
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 6rem); font-weight: 900; line-height: 1.0;
+      letter-spacing: -3px; margin-bottom: 1.5rem; animation: fadeInUp 0.6s 0.1s both;
+    }
+    .hero-title .grad {
+      background: linear-gradient(135deg, #4f8ef7, #a78bfa 50%, #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.15rem; color: var(--text-secondary); max-width: 580px; line-height: 1.7;
+      margin: 0 auto 2.5rem; animation: fadeInUp 0.6s 0.2s both;
+    }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; animation: fadeInUp 0.6s 0.3s both; }
+    .hero-stats { margin-top: 4rem; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; animation: fadeInUp 0.6s 0.4s both; }
+    .hero-stat { text-align: center; }
+    .hero-stat-num { font-size: 2rem; font-weight: 800; }
+    .hero-stat-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .h-divider { width: 1px; background: var(--border); }
+    .domains-section, .how-section, .features-section { padding: 4rem 2rem; }
+    .section-center { text-align: center; }
+    .section-center .section-subtitle { margin: 0.75rem auto 0; }
+    .domains-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+      gap: 1.25rem; max-width: 1200px; margin: 2.5rem auto 0;
+    }
+    .domain-card {
+      padding: 1.75rem; border-radius: var(--radius-lg);
+      background: var(--bg-card); border: 1px solid var(--border);
+      cursor: pointer; transition: var(--transition); position: relative; overflow: hidden;
+    }
+    .domain-card::before {
+      content: ''; position: absolute; inset: 0; opacity: 0;
+      background: radial-gradient(ellipse at 20% 20%, var(--clr, #4f8ef7), transparent 65%);
+      transition: opacity 0.4s;
+    }
+    .domain-card:hover { transform: translateY(-6px); border-color: var(--clr, #4f8ef7); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+    .domain-card:hover::before { opacity: 0.1; }
+    .domain-card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .domain-card-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .domain-card-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+    .domain-pill { display: inline-block; margin-top: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--clr, #4f8ef7); }
+    .domain-arrow { position: absolute; top: 1.5rem; right: 1.5rem; width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; opacity: 0; transition: var(--transition); }
+    .domain-card:hover .domain-arrow { opacity: 1; transform: translate(2px,-2px); }
+    .how-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; max-width: 900px; margin: 2.5rem auto 0; }
+    .how-step { text-align: center; padding: 2rem 1.5rem; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border); }
+    .how-step-num { width: 50px; height: 50px; border-radius: 14px; margin: 0 auto 1rem; background: linear-gradient(135deg,var(--accent-bank),var(--accent-college)); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 900; }
+    .how-step-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .how-step-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1.25rem; max-width: 1100px; margin: 2.5rem auto 0; }
+    .feature-card { padding: 1.5rem; border-radius: var(--radius-md); background: var(--bg-card); border: 1px solid var(--border); transition: var(--transition); }
+    .feature-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .feature-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+    .feature-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .feature-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
+    .join-section { padding: 3rem 2rem 6rem; }
+    .join-box { max-width: 480px; margin: 2rem auto 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2.5rem; }
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+    footer a { color: var(--text-secondary); }
+    footer a:hover { color: var(--accent-bank); }
+  </style>
+</head>
+<body>
+  <div class="bg-orbs"><span></span><span></span><span></span></div>
+  <div id="toast-container"></div>
+  <nav class="navbar main-content">
+    <div class="navbar-brand">
+      <div class="brand-icon">🎫</div>
+      <span>Queue<span>ker</span></span>
+    </div>
+    <div class="navbar-nav">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="admin.html" class="nav-link">Admin</a>
+      <a href="customer.html" class="nav-link">Join Queue</a>
+    </div>
+    <button class="btn-nav" onclick="document.getElementById('join-section').scrollIntoView({behavior:'smooth'})">Join a Queue →</button>
+  </nav>
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-eyebrow">✨ Smart Queue Management System</div>
+      <h1 class="hero-title">Skip the Wait,<br/><span class="grad">Join Digitally</span></h1>
+      <p class="hero-sub">Queueker helps banks, colleges, shops, hospitals & government offices manage queues effortlessly. Customers join from their phone, track position in real-time.</p>
+      <div class="hero-cta">
+        <a href="admin.html" class="btn btn-primary btn-lg">🏢 Create a Queue</a>
+        <button class="btn btn-outline btn-lg" onclick="document.getElementById('join-section').scrollIntoView({behavior:'smooth'})">🎫 Join a Queue</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num">6</div><div class="hero-stat-label">Domains</div></div>
+        <div class="h-divider"></div>
+        <div class="hero-stat"><div class="hero-stat-num" id="cnt-active">0</div><div class="hero-stat-label">Active Queues</div></div>
+        <div class="h-divider"></div>
+        <div class="hero-stat"><div class="hero-stat-num" id="cnt-served">0</div><div class="hero-stat-label">Customers Served</div></div>
+      </div>
+    </section>
+    <div class="ticker-wrap"><div class="ticker-inner" id="ticker-inner">
+      <span class="ticker-item">🏦 <span>Bank Queue</span> — Serving <span>#12</span></span>
+      <span class="ticker-item">🎓 <span>College Office</span> — Serving <span>#5</span></span>
+      <span class="ticker-item">🏥 <span>City Hospital</span> — Serving <span>#31</span></span>
+      <span class="ticker-item">🛍️ <span>Metro Shop</span> — Serving <span>#7</span></span>
+      <span class="ticker-item">✏️ <span>Star Stationary</span> — Serving <span>#2</span></span>
+      <span class="ticker-item">🏛️ <span>Govt Office</span> — Serving <span>#18</span></span>
+      <span class="ticker-item">🏦 <span>Bank Queue</span> — Serving <span>#12</span></span>
+      <span class="ticker-item">🎓 <span>College Office</span> — Serving <span>#5</span></span>
+      <span class="ticker-item">🏥 <span>City Hospital</span> — Serving <span>#31</span></span>
+      <span class="ticker-item">🛍️ <span>Metro Shop</span> — Serving <span>#7</span></span>
+    </div></div>
+    <section class="domains-section">
+      <div class="section-center">
+        <div class="section-label">Supported Domains</div>
+        <h2 class="section-title">Works Everywhere<br/>You Need It</h2>
+        <p class="section-subtitle section-center">Built for all types of organizations — from government offices to small corner shops.</p>
+      </div>
+      <div class="domains-grid" id="domains-grid"></div>
+    </section>
+    <section class="how-section">
+      <div class="section-center">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">Simple by <span>Design</span></h2>
+      </div>
+      <div class="how-steps">
+        <div class="how-step fade-in"><div class="how-step-num">1</div><div class="how-step-title">Admin Creates Queue</div><div class="how-step-desc">The organization sets up in seconds — pick domain, service, and a unique Queue ID.</div></div>
+        <div class="how-step fade-in-2"><div class="how-step-num">2</div><div class="how-step-title">Customer Joins</div><div class="how-step-desc">Enter Queue ID, get a token number instantly with your live position.</div></div>
+        <div class="how-step fade-in-3"><div class="how-step-num">3</div><div class="how-step-title">Real-Time Tracking</div><div class="how-step-desc">Live position, estimated wait time, and who is currently being served.</div></div>
+        <div class="how-step fade-in-4"><div class="how-step-num">4</div><div class="how-step-title">Admin Calls Next</div><div class="how-step-desc">One click to call the next customer. The board updates instantly.</div></div>
+      </div>
+    </section>
+    <section class="features-section">
+      <div class="section-center">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Everything You <span>Need</span></h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card fade-in"><div class="feature-icon">🎫</div><div class="feature-title">Token Generation</div><div class="feature-desc">Unique numbered tokens on joining the queue.</div></div>
+        <div class="feature-card fade-in-2"><div class="feature-icon">📍</div><div class="feature-title">Live Position Tracking</div><div class="feature-desc">Estimated wait time so customers always know where they stand.</div></div>
+        <div class="feature-card fade-in-3"><div class="feature-icon">⏭️</div><div class="feature-title">Skip & Serve Controls</div><div class="feature-desc">Admins can serve next or skip with a single click.</div></div>
+        <div class="feature-card fade-in-4"><div class="feature-icon">🔐</div><div class="feature-title">PIN Protected Admin</div><div class="feature-desc">Secure management with a custom PIN known only to the admin.</div></div>
+        <div class="feature-card fade-in"><div class="feature-icon">⏸️</div><div class="feature-title">Pause & Resume</div><div class="feature-desc">Temporarily pause queues during breaks and resume anytime.</div></div>
+        <div class="feature-card fade-in-2"><div class="feature-icon">📊</div><div class="feature-title">Stats Dashboard</div><div class="feature-desc">Waiting, served, and skipped counts at a glance.</div></div>
+        <div class="feature-card fade-in-3"><div class="feature-icon">🌐</div><div class="feature-title">Works Offline</div><div class="feature-desc">Data stored locally — no server needed, works anywhere.</div></div>
+        <div class="feature-card fade-in-4"><div class="feature-icon">📱</div><div class="feature-title">Mobile Friendly</div><div class="feature-desc">Responsive on phones, tablets, and desktops.</div></div>
+      </div>
+    </section>
+    <section class="join-section" id="join-section">
+      <div class="section-center">
+        <div class="section-label">Quick Join</div>
+        <h2 class="section-title">Have a <span>Queue ID?</span></h2>
+        <p class="section-subtitle section-center">Enter the Queue ID shared by the staff to join instantly.</p>
+      </div>
+      <div class="join-box fade-in">
+        <div class="input-group" style="margin-bottom:1rem">
+          <label class="input-label" for="qid">Queue ID</label>
+          <input class="input-field" id="qid" placeholder="e.g. AB12CD" maxlength="10" style="text-transform:uppercase;font-size:1.1rem;letter-spacing:2px" />
+        </div>
+        <button class="btn btn-primary" style="width:100%" id="join-btn">🎫 Find Queue & Join</button>
+        <p style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--text-muted)">Don't have an ID? <a href="admin.html" style="color:var(--accent-bank)">Create a queue →</a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="main-content">
+    <p>© 2026 <strong>Queueker</strong> — Smart Queue Management &nbsp;|&nbsp; <a href="admin.html">Admin</a> &nbsp;|&nbsp; <a href="customer.html">Join Queue</a></p>
+  </footer>
+  <script src="app.js"></script>
+  <script>
+    // Domain Cards
+    const grid = document.getElementById('domains-grid');
+    Object.entries(DOMAINS).forEach(([key, d], i) => {
+      const card = document.createElement('div');
+      card.className = 'domain-card fade-in';
+      card.style.setProperty('--clr', d.color);
+      card.style.animationDelay = `${i*0.07}s`;
+      card.innerHTML = `<div class="domain-card-icon">${d.icon}</div><div class="domain-card-name">${d.name}</div><div class="domain-card-desc">${d.description}</div><div class="domain-pill">${d.services.length} services</div><div class="domain-arrow">↗</div>`;
+      card.addEventListener('click', () => { window.location.href = `admin.html?domain=${key}`; });
+      grid.appendChild(card);
+    });
+    // Stats
+    const all = QueueState.getAllQueues();
+    let served = 0;
+    all.forEach(q => { served += q.tokens.filter(t=>t.status==='done').length; });
+    setTimeout(() => {
+      animateCount(document.getElementById('cnt-active'), all.filter(q=>q.status==='active').length);
+      animateCount(document.getElementById('cnt-served'), served);
+    }, 600);
+    // Quick Join
+    const qid = document.getElementById('qid');
+    qid.addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
+    document.getElementById('join-btn').addEventListener('click', () => {
+      const id = qid.value.trim();
+      if (!id) { showToast('Enter a Queue ID', 'error'); return; }
+      if (!QueueState.getQueue(id)) { showToast(`Queue "${id}" not found`, 'error'); return; }
+      window.location.href = `customer.html?queue=${id}`;
+    });
+    qid.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('join-btn').click(); });
+  </script>
+</body>
+</html>

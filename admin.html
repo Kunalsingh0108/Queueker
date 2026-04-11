@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel – Queueker</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .admin-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* ---- Page Tabs ---- */
+        .page-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.35rem;
+            width: fit-content;
+        }
+
+        .page-tab {
+            padding: 0.55rem 1.25rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border: none;
+            background: none;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .page-tab.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ---- Create Form ---- */
+        .create-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .create-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row-1 {
+            margin-bottom: 1rem;
+        }
+
+        .services-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .service-chip {
+            padding: 0.3rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .service-chip:hover,
+        .service-chip.sel {
+            background: var(--accent-dark);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .qid-preview {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--accent);
+            font-family: 'Outfit', monospace;
+        }
+
+        .qid-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed var(--border-hover);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .qid-hint {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+
+        /* ---- My Queues ---- */
+        .queues-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .queues-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .q-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .q-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .q-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .q-card-info {
+            flex: 1;
+        }
+
+        .q-card-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .q-card-meta {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .q-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1.25rem;
+        }
+
+        .q-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .q-stat {
+            text-align: center;
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .q-stat-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .q-stat-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ---- Manage Panel ---- */
+        .manage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .manage-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+        }
+
+        .now-serving-box {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(79, 142, 247, 0.08), rgba(167, 139, 250, 0.08));
+            border: 1px solid rgba(79, 142, 247, 0.2);
+            border-radius: var(--radius-xl);
+            margin-bottom: 1.5rem;
+        }
+
+        .serving-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .serving-token {
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: -3px;
+            background: linear-gradient(135deg, var(--accent-bank), var(--accent-college));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .serving-name {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btns .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .queue-list-manage {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .manage-hidden {
+            display: none;
+        }
+
+        /* Pin modal */
+        .pin-input {
+            font-size: 1.5rem;
+            letter-spacing: 8px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        @media (max-width: 700px) {
+
+            .create-grid,
+            .manage-grid,
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orbs"><span></span><span></span><span></span></div>
+    <div id="toast-container"></div>
+
+    <!-- PIN Modal -->
+    <div class="modal-overlay" id="pin-modal">
+        <div class="modal">
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem">🔐 Admin PIN Required</h3>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem">Enter your admin PIN to manage
+                this queue.</p>
+            <div class="input-group" style="margin-bottom:1.25rem">
+                <input class="input-field pin-input" id="pin-input" type="password" maxlength="8" placeholder="••••" />
+            </div>
+            <div style="display:flex;gap:0.75rem">
+                <button class="btn btn-primary" style="flex:1;justify-content:center" id="pin-confirm">Unlock</button>
+                <button class="btn btn-ghost" style="flex:1;justify-content:center" id="pin-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal-overlay" id="del-modal">
+        <div class="modal">
+            <h3 style="font-size:1.2rem;font-weight:700;margin-bottom:0.5rem">🗑️ Delete Queue?</h3>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem">This will permanently delete
+                the queue and all its data. This cannot be undone.</p>
+            <div style="display:flex;gap:0.75rem">
+                <button class="btn btn-primary"
+                    style="flex:1;justify-content:center;background:linear-gradient(135deg,#f87171,#ef4444)"
+                    id="del-confirm">Delete</button>
+                <button class="btn btn-ghost" style="flex:1;justify-content:center" id="del-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar main-content">
+        <div class="navbar-brand">
+            <div class="brand-icon">🎫</div>
+            <span>Queue<span>ker</span></span>
+        </div>
+        <div class="navbar-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="admin.html" class="nav-link active">Admin</a>
+            <a href="customer.html" class="nav-link">Join Queue</a>
+        </div>
+    </nav>
+
+    <main class="main-content admin-wrap">
+        <div style="margin-bottom:2rem" class="fade-in">
+            <div class="section-label">Admin Panel</div>
+            <h1 style="font-size:2rem;font-weight:800;letter-spacing:-0.5px">Queue Management Dashboard</h1>
+            <p style="color:var(--text-secondary);margin-top:0.4rem">Create and manage queues for your organisation.</p>
+        </div>
+
+        <div class="page-tabs fade-in">
+            <button class="page-tab active" data-tab="create">➕ Create Queue</button>
+            <button class="page-tab" data-tab="queues">📋 My Queues</button>
+            <button class="page-tab manage-hidden" id="tab-manage" data-tab="manage">⚙️ Manage</button>
+        </div>
+
+        <!-- CREATE TAB -->
+        <div class="tab-panel active fade-in" id="tab-create">
+            <div style="display:grid;grid-template-columns:1fr 380px;gap:1.5rem;align-items:start" id="create-layout">
+                <div class="create-box">
+                    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem">Queue Details</h2>
+                    <div class="form-row-1 input-group">
+                        <label class="input-label">Queue Name</label>
+                        <input class="input-field" id="q-name"
+                            placeholder="e.g. SBI Main Branch, Engineering Registrar" />
+                    </div>
+                    <div class="form-row" style="margin-top:1rem">
+                        <div class="input-group">
+                            <label class="input-label">Domain</label>
+                            <select class="input-field" id="q-domain">
+                                <option value="">Select domain…</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Service Type</label>
+                            <select class="input-field" id="q-service">
+                                <option value="">Select service…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top:0">
+                        <div class="input-group">
+                            <label class="input-label">Max Capacity</label>
+                            <input class="input-field" id="q-capacity" type="number" value="100" min="5" max="500" />
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Admin PIN</label>
+                            <input class="input-field" id="q-pin" type="password" maxlength="8"
+                                placeholder="4-digit PIN" value="1234" />
+                        </div>
+                    </div>
+                    <div style="margin-top:1rem">
+                        <label class="input-label">Quick Service Tags</label>
+                        <div class="services-preview" id="services-preview"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="create-box" style="margin-bottom:1rem">
+                        <h3
+                            style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:1rem;text-transform:uppercase;letter-spacing:1px">
+                            Queue ID Preview</h3>
+                        <div class="qid-box">
+                            <div class="qid-preview" id="qid-preview">——</div>
+                            <div class="qid-hint">Share this with your customers so they can join</div>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" id="regen-id" style="width:100%;justify-content:center">🔄
+                            Regenerate ID</button>
+                    </div>
+                    <div class="create-box">
+                        <h3
+                            style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:1px">
+                            Summary</h3>
+                        <div id="summary-box" style="font-size:0.88rem;color:var(--text-muted);line-height:1.8">Fill in
+                            the details to see a preview.</div>
+                        <div class="divider"></div>
+                        <button class="btn btn-primary" style="width:100%;justify-content:center" id="create-btn">🚀
+                            Create Queue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MY QUEUES TAB -->
+        <div class="tab-panel" id="tab-queues">
+            <div class="queues-header">
+                <h2 style="font-size:1.15rem;font-weight:700">Your Queues</h2>
+                <button class="btn btn-primary btn-sm" onclick="switchTab('create')">➕ Create New</button>
+            </div>
+            <div class="queues-list" id="queues-list">
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p style="font-weight:700;margin-bottom:0.5rem">No queues yet</p>
+                    <p style="font-size:0.85rem">Create your first queue to get started.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGE TAB -->
+        <div class="tab-panel" id="tab-manage">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+                <div>
+                    <h2 style="font-size:1.1rem;font-weight:700" id="manage-title">Queue Name</h2>
+                    <p style="font-size:0.85rem;color:var(--text-secondary)" id="manage-subtitle">ID: — · Service: —</p>
+                </div>
+                <div style="display:flex;gap:0.5rem">
+                    <span class="badge" id="manage-status-badge">Active</span>
+                    <button class="btn btn-ghost btn-sm" id="manage-pause-btn">⏸ Pause</button>
+                    <button class="btn btn-ghost btn-sm"
+                        onclick="location.href='customer.html?queue='+currentQueueId">👁 Customer View</button>
+                </div>
+            </div>
+            <div class="manage-grid">
+                <!-- Left: Controls -->
+                <div>
+                    <div class="now-serving-box">
+                        <div class="serving-label">Now Serving</div>
+                        <div class="serving-token" id="serving-number">—</div>
+                        <div class="serving-name" id="serving-name">Waiting to start</div>
+                    </div>
+                    <div class="action-btns" style="margin-bottom:1.5rem">
+                        <button class="btn btn-primary" id="serve-next-btn" style="justify-content:center">⏭ Call
+                            Next</button>
+                        <button class="btn btn-ghost" id="skip-btn" style="justify-content:center">⏩ Skip</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem" id="manage-stats">
+                        <div class="q-stat">
+                            <div class="q-stat-num" id="s-waiting">0</div>
+                            <div class="q-stat-label">Waiting</div>
+                        </div>
+                        <div class="q-stat">
+                            <div class="q-stat-num" id="s-serving">0</div>
+                            <div class="q-stat-label">Serving</div>
+                        </div>
+                        <div class="q-stat">
+                            <div class="q-stat-num" id="s-done">0</div>
+                            <div class="q-stat-label">Done</div>
+                        </div>
+                        <div class="q-stat">
+                            <div class="q-stat-num" id="s-skipped">0</div>
+                            <div class="q-stat-label">Skipped</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Queue List -->
+                <div class="manage-box">
+                    <h3
+                        style="font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);margin-bottom:1rem">
+                        Queue List</h3>
+                    <div class="queue-list-manage" id="queue-list-manage">
+                        <div class="empty-state" style="padding:2rem 0">
+                            <div class="empty-icon">🕐</div>
+                            <p>Queue is empty</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        let pendingQueueId = null;
+        let pendingAction = null;
+        let delQueueId = null;
+        let currentQueueId = null;
+        let generatedId = generateQueueId();
+        let manageRefreshInterval = null;
+
+        // Populate domain dropdown
+        const domainSel = document.getElementById('q-domain');
+        Object.entries(DOMAINS).forEach(([k, d]) => {
+            const o = document.createElement('option');
+            o.value = k; o.textContent = `${d.icon} ${d.name}`;
+            domainSel.appendChild(o);
+        });
+
+        // Pre-select from URL param
+        const urlDomain = new URLSearchParams(location.search).get('domain');
+        if (urlDomain && DOMAINS[urlDomain]) { domainSel.value = urlDomain; onDomainChange(); }
+
+        // Show ID preview
+        document.getElementById('qid-preview').textContent = generatedId;
+
+        document.getElementById('regen-id').addEventListener('click', () => {
+            generatedId = generateQueueId();
+            document.getElementById('qid-preview').textContent = generatedId;
+            updateSummary();
+        });
+
+        domainSel.addEventListener('change', onDomainChange);
+
+        function onDomainChange() {
+            const key = domainSel.value;
+            const d = DOMAINS[key];
+            const svcSel = document.getElementById('q-service');
+            svcSel.innerHTML = '<option value="">Select service…</option>';
+            const preview = document.getElementById('services-preview');
+            preview.innerHTML = '';
+            if (!d) return;
+            d.services.forEach(s => {
+                const o = document.createElement('option');
+                o.value = s; o.textContent = s; svcSel.appendChild(o);
+                const chip = document.createElement('span');
+                chip.className = 'service-chip'; chip.textContent = s;
+                chip.addEventListener('click', () => {
+                    svcSel.value = s;
+                    document.querySelectorAll('.service-chip').forEach(c => c.classList.remove('sel'));
+                    chip.classList.add('sel');
+                    updateSummary();
+                });
+                preview.appendChild(chip);
+            });
+            applyDomainTheme(key);
+            updateSummary();
+        }
+
+        document.getElementById('q-name').addEventListener('input', updateSummary);
+        document.getElementById('q-service').addEventListener('change', updateSummary);
+
+        function updateSummary() {
+            const name = document.getElementById('q-name').value || '—';
+            const domain = domainSel.value;
+            const svc = document.getElementById('q-service').value || '—';
+            const cap = document.getElementById('q-capacity').value || '100';
+            const d = DOMAINS[domain];
+            document.getElementById('summary-box').innerHTML = `
+        <strong style="color:var(--text-primary)">${name}</strong><br/>
+        🏷️ Domain: ${d ? d.icon + ' ' + d.name : '—'}<br/>
+        🛎️ Service: ${svc}<br/>
+        👥 Max Capacity: ${cap}<br/>
+        🆔 Queue ID: <strong style="color:var(--accent)">${generatedId}</strong>
+      `;
+        }
+
+        // Create Queue
+        document.getElementById('create-btn').addEventListener('click', () => {
+            const name = document.getElementById('q-name').value.trim();
+            const domain = domainSel.value;
+            const service = document.getElementById('q-service').value;
+            const cap = parseInt(document.getElementById('q-capacity').value) || 100;
+            const pin = document.getElementById('q-pin').value.trim() || '1234';
+            if (!name) { showToast('Queue name is required', 'error'); return; }
+            if (!domain) { showToast('Please select a domain', 'error'); return; }
+            const res = QueueState.createQueue({ id: generatedId, name, domain, service: service || 'General', maxCapacity: cap, adminPin: pin });
+            if (res.error) { showToast(res.error, 'error'); return; }
+            showToast(`Queue "${name}" created! ID: ${generatedId}`, 'success');
+            generatedId = generateQueueId();
+            document.getElementById('qid-preview').textContent = generatedId;
+            document.getElementById('q-name').value = '';
+            updateSummary();
+            switchTab('queues');
+            renderQueues();
+        });
+
+        // Tab switching
+        function switchTab(name) {
+            document.querySelectorAll('.page-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+        }
+        document.querySelectorAll('.page-tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+        // Render queue cards
+        function renderQueues() {
+            const list = document.getElementById('queues-list');
+            const queues = QueueState.getAllQueues();
+            if (!queues.length) {
+                list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p style="font-weight:700;margin-bottom:0.5rem">No queues yet</p><p style="font-size:0.85rem">Create your first queue to get started.</p></div>`;
+                return;
+            }
+            list.innerHTML = '';
+            queues.sort((a, b) => b.createdAt - a.createdAt).forEach(q => {
+                const d = DOMAINS[q.domain] || {};
+                const stats = QueueState.getStats(q.id);
+                const statusColors = { active: 'badge-active', paused: 'badge-waiting', closed: 'badge-closed' };
+                const card = document.createElement('div');
+                card.className = 'q-card fade-in';
+                card.innerHTML = `
+          <div class="q-card-top">
+            <div class="q-card-info">
+              <div class="q-card-name">${d.icon || '🏢'} ${q.name}</div>
+              <div class="q-card-meta">ID: <strong style="color:var(--accent-bank);letter-spacing:1px">${q.id}</strong> &nbsp;·&nbsp; ${d.name || q.domain} &nbsp;·&nbsp; ${q.service}</div>
+            </div>
+            <span class="badge ${statusColors[q.status] || ''}">${q.status}</span>
+          </div>
+          <div class="q-stats">
+            <div class="q-stat"><div class="q-stat-num" style="color:#fb923c">${stats.waiting}</div><div class="q-stat-label">Waiting</div></div>
+            <div class="q-stat"><div class="q-stat-num" style="color:#4f8ef7">${stats.serving}</div><div class="q-stat-label">Serving</div></div>
+            <div class="q-stat"><div class="q-stat-num" style="color:#34d399">${stats.done}</div><div class="q-stat-label">Done</div></div>
+            <div class="q-stat"><div class="q-stat-num" style="color:var(--text-muted)">${stats.skipped}</div><div class="q-stat-label">Skipped</div></div>
+          </div>
+          <div class="q-card-actions">
+            <button class="btn btn-primary btn-sm" onclick="openManage('${q.id}')">⚙️ Manage</button>
+            <button class="btn btn-ghost btn-sm" onclick="location.href='customer.html?queue=${q.id}'">👁 Customer View</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyId('${q.id}')">📋 Copy ID</button>
+            <button class="btn btn-ghost btn-sm" style="color:#f87171" onclick="openDelete('${q.id}')">🗑️ Delete</button>
+          </div>`;
+                list.appendChild(card);
+            });
+        }
+
+        function copyId(id) {
+            navigator.clipboard.writeText(id).then(() => showToast(`Copied ID: ${id}`, 'success'));
+        }
+
+        // Open Manage
+        function openManage(queueId) {
+            pendingQueueId = queueId;
+            pendingAction = 'manage';
+            document.getElementById('pin-input').value = '';
+            document.getElementById('pin-modal').classList.add('open');
+            setTimeout(() => document.getElementById('pin-input').focus(), 100);
+        }
+
+        // Delete
+        function openDelete(queueId) {
+            delQueueId = queueId;
+            document.getElementById('del-modal').classList.add('open');
+        }
+        document.getElementById('del-confirm').addEventListener('click', () => {
+            if (!delQueueId) return;
+            QueueState.deleteQueue(delQueueId);
+            showToast('Queue deleted', 'success');
+            document.getElementById('del-modal').classList.remove('open');
+            renderQueues();
+        });
+        document.getElementById('del-cancel').addEventListener('click', () => document.getElementById('del-modal').classList.remove('open'));
+
+        // PIN modal
+        document.getElementById('pin-confirm').addEventListener('click', handlePin);
+        document.getElementById('pin-input').addEventListener('keydown', e => { if (e.key === 'Enter') handlePin(); });
+        document.getElementById('pin-cancel').addEventListener('click', () => document.getElementById('pin-modal').classList.remove('open'));
+
+        function handlePin() {
+            const pin = document.getElementById('pin-input').value;
+            if (!verifyPin(pendingQueueId, pin)) { showToast('Incorrect PIN', 'error'); return; }
+            document.getElementById('pin-modal').classList.remove('open');
+            if (pendingAction === 'manage') loadManage(pendingQueueId);
+        }
+
+        function loadManage(queueId) {
+            currentQueueId = queueId;
+            const q = QueueState.getQueue(queueId);
+            if (!q) return;
+            const d = DOMAINS[q.domain] || {};
+            document.getElementById('manage-title').textContent = `${d.icon || '🏢'} ${q.name}`;
+            document.getElementById('manage-subtitle').textContent = `ID: ${q.id} · Service: ${q.service}`;
+            document.getElementById('tab-manage').classList.remove('manage-hidden');
+            switchTab('manage');
+            applyDomainTheme(q.domain);
+            refreshManage();
+            clearInterval(manageRefreshInterval);
+            manageRefreshInterval = setInterval(refreshManage, 2000);
+        }
+
+        function refreshManage() {
+            if (!currentQueueId) return;
+            const q = QueueState.getQueue(currentQueueId);
+            if (!q) return;
+            const stats = QueueState.getStats(currentQueueId);
+            // Serving number
+            const serving = q.tokens.find(t => t.status === 'serving');
+            document.getElementById('serving-number').textContent = serving ? `#${serving.token}` : '—';
+            document.getElementById('serving-name').textContent = serving ? serving.name : 'No one being served';
+            // Stats
+            document.getElementById('s-waiting').textContent = stats.waiting;
+            document.getElementById('s-serving').textContent = stats.serving;
+            document.getElementById('s-done').textContent = stats.done;
+            document.getElementById('s-skipped').textContent = stats.skipped;
+            // Status badge
+            const badge = document.getElementById('manage-status-badge');
+            badge.className = `badge ${q.status === 'active' ? 'badge-active' : q.status === 'paused' ? 'badge-waiting' : 'badge-closed'}`;
+            badge.textContent = q.status;
+            // Pause button
+            document.getElementById('manage-pause-btn').textContent = q.status === 'paused' ? '▶ Resume' : '⏸ Pause';
+            // Queue list
+            const listEl = document.getElementById('queue-list-manage');
+            const items = q.tokens.filter(t => t.status !== 'done');
+            if (!items.length) {
+                listEl.innerHTML = `<div class="empty-state" style="padding:1.5rem 0"><div class="empty-icon">✅</div><p>Queue is empty or all served</p></div>`;
+                return;
+            }
+            listEl.innerHTML = '';
+            items.forEach((t, i) => {
+                const el = document.createElement('div');
+                el.className = 'queue-item';
+                const statusColor = t.status === 'serving' ? '#4f8ef7' : t.status === 'skipped' ? '#f87171' : '#fb923c';
+                el.innerHTML = `
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <div class="queue-item-number">#${t.token}</div>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">${t.name}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted)">${timeAgo(t.joinedAt)}</div>
+            </div>
+          </div>
+          <span class="badge" style="background:${statusColor}22;color:${statusColor};border-color:${statusColor}44">${t.status}</span>`;
+                listEl.appendChild(el);
+            });
+        }
+
+        // Call next
+        document.getElementById('serve-next-btn').addEventListener('click', () => {
+            if (!currentQueueId) return;
+            const res = QueueState.serveNext(currentQueueId);
+            if (res.error) { showToast(res.error, 'info'); return; }
+            showToast(`Now serving #${res.token.token} — ${res.token.name}`, 'success');
+            refreshManage();
+        });
+
+        // Skip
+        document.getElementById('skip-btn').addEventListener('click', () => {
+            if (!currentQueueId) return;
+            QueueState.skipCurrent(currentQueueId);
+            showToast('Customer skipped', 'info');
+            refreshManage();
+        });
+
+        // Pause / Resume
+        document.getElementById('manage-pause-btn').addEventListener('click', () => {
+            if (!currentQueueId) return;
+            const q = QueueState.getQueue(currentQueueId);
+            const newStatus = q.status === 'paused' ? 'active' : 'paused';
+            QueueState.setQueueStatus(currentQueueId, newStatus);
+            showToast(`Queue ${newStatus === 'paused' ? 'paused' : 'resumed'}`, 'info');
+            refreshManage();
+        });
+
+        // Initial render
+        renderQueues();
+        updateSummary();
+    </script>
+</body>
+
+</html>

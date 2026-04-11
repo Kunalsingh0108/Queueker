@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join Queue – Queueker</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        .customer-wrap {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 5rem;
+        }
+
+        /* Search */
+        .search-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Queue info header */
+        .queue-header {
+            background: linear-gradient(135deg, rgba(79, 142, 247, 0.08), rgba(167, 139, 250, 0.08));
+            border: 1px solid rgba(79, 142, 247, 0.2);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .q-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .q-header-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .q-header-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Token card */
+        .token-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            text-align: center;
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .token-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .big-token {
+            font-size: 6rem;
+            font-weight: 900;
+            letter-spacing: -4px;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent), #fff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .position-row {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            margin-top: 1.75rem;
+            flex-wrap: wrap;
+        }
+
+        .pos-box {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .pos-num {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .pos-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Progress */
+        .progress-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Now Serving Board */
+        .board-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 1.75rem;
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .board-serving-num {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: -2px;
+            margin: 0.5rem 0;
+        }
+
+        /* Join form */
+        .join-form {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Status banners */
+        .status-banner {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+            display: none;
+        }
+
+        .banner-paused {
+            background: rgba(251, 146, 60, 0.12);
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            color: #fb923c;
+        }
+
+        .banner-closed {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .banner-your-turn {
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: #34d399;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Refresh indicator */
+        .refresh-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orbs"><span></span><span></span><span></span></div>
+    <div id="toast-container"></div>
+
+    <nav class="navbar main-content">
+        <div class="navbar-brand">
+            <div class="brand-icon">🎫</div>
+            <span>Queue<span>ker</span></span>
+        </div>
+        <div class="navbar-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="admin.html" class="nav-link">Admin</a>
+            <a href="customer.html" class="nav-link active">Join Queue</a>
+        </div>
+    </nav>
+
+    <main class="main-content customer-wrap">
+        <div class="fade-in" style="margin-bottom:1.75rem">
+            <div class="section-label">Customer View</div>
+            <h1 style="font-size:2rem;font-weight:800;letter-spacing:-0.5px">Join a Queue</h1>
+            <p style="color:var(--text-secondary);margin-top:0.4rem;font-size:0.95rem">Enter a Queue ID to get your
+                token and track your position live.</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-card fade-in">
+            <div class="search-row">
+                <input class="input-field" id="search-id" placeholder="Queue ID (e.g. AB12CD)" maxlength="10"
+                    style="text-transform:uppercase;letter-spacing:2px;font-size:1rem;flex:1" />
+                <button class="btn btn-primary" id="search-btn">Find</button>
+            </div>
+        </div>
+
+        <!-- Status Banners -->
+        <div class="status-banner banner-paused" id="banner-paused">⏸ This queue is currently paused. Please wait — it
+            will resume shortly.</div>
+        <div class="status-banner banner-closed" id="banner-closed">🚫 This queue is closed. Please come back later or
+            contact staff.</div>
+        <div class="status-banner banner-your-turn" id="banner-your-turn">🎉 It's YOUR TURN! Please proceed to the
+            counter now.</div>
+
+        <!-- Queue Header -->
+        <div class="queue-header fade-in" id="queue-header">
+            <div class="q-header-top">
+                <div>
+                    <div class="q-header-name" id="qh-name">—</div>
+                    <div class="q-header-meta" id="qh-meta">—</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;color:var(--text-secondary)">
+                    <span class="refresh-dot"></span> Live
+                </div>
+            </div>
+        </div>
+
+        <!-- Now Serving Board -->
+        <div class="board-card fade-in" id="board-card">
+            <div
+                style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted)">
+                Now Serving</div>
+            <div class="board-serving-num" id="board-num">—</div>
+            <div style="font-size:0.9rem;color:var(--text-secondary)" id="board-name">Waiting to start</div>
+            <div class="divider"></div>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap">
+                <div style="font-size:0.85rem;color:var(--text-secondary)">👥 Waiting: <strong
+                        id="board-waiting">0</strong></div>
+                <div style="font-size:0.85rem;color:var(--text-secondary)">✅ Done: <strong id="board-done">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Token Card (shown after joining) -->
+        <div class="token-card fade-in" id="token-card">
+            <div class="token-label">Your Token Number</div>
+            <div class="big-token" id="token-num">—</div>
+            <div style="font-size:0.9rem;color:var(--text-secondary);margin-top:0.5rem" id="token-holder">—</div>
+            <div class="position-row">
+                <div class="pos-box">
+                    <div class="pos-num" id="pos-num" style="color:var(--accent)">—</div>
+                    <div class="pos-label">Position</div>
+                </div>
+                <div class="pos-box">
+                    <div class="pos-num" id="wait-est" style="color:#fb923c">—</div>
+                    <div class="pos-label">Est. Wait</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section fade-in" id="progress-section">
+            <div class="progress-header">
+                <span>Queue Progress</span>
+                <span id="progress-text">0 / 0</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+        </div>
+
+        <!-- Join Form -->
+        <div class="join-form fade-in" id="join-form">
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem">🎫 Join This Queue</h3>
+            <div class="input-group" style="margin-bottom:1rem">
+                <label class="input-label" for="cust-name">Your Name</label>
+                <input class="input-field" id="cust-name" placeholder="Enter your name" />
+            </div>
+            <div class="input-group" style="margin-bottom:1.25rem">
+                <label class="input-label" for="cust-phone">Phone (optional)</label>
+                <input class="input-field" id="cust-phone" type="tel" placeholder="+91 98765 43210" />
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" id="join-btn">🎫 Get My
+                Token</button>
+        </div>
+
+        <!-- After joining: check status button -->
+        <div id="after-join-actions" style="display:none;text-align:center">
+            <button class="btn btn-ghost" id="leave-queue-btn" style="margin-top:0.5rem">Leave this queue</button>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        let activeQueueId = null;
+        let myToken = null;
+        let liveInterval = null;
+
+        // Pre-fill from URL
+        const urlQueue = getParam('queue');
+        const urlToken = getParam('token');
+        if (urlQueue) { document.getElementById('search-id').value = urlQueue; findQueue(urlQueue); }
+        if (urlToken) myToken = parseInt(urlToken);
+
+        const searchId = document.getElementById('search-id');
+        searchId.addEventListener('input', e => e.target.value = e.target.value.toUpperCase());
+        document.getElementById('search-btn').addEventListener('click', () => findQueue(searchId.value.trim()));
+        searchId.addEventListener('keydown', e => { if (e.key === 'Enter') findQueue(searchId.value.trim()); });
+
+        function findQueue(id) {
+            if (!id) { showToast('Enter a Queue ID', 'error'); return; }
+            const q = QueueState.getQueue(id);
+            if (!q) { showToast(`Queue "${id}" not found. Check with staff.`, 'error'); return; }
+            activeQueueId = id;
+            applyDomainTheme(q.domain);
+            showQueueUI(q);
+            clearInterval(liveInterval);
+            liveInterval = setInterval(() => refreshLive(), 2500);
+        }
+
+        function showQueueUI(q) {
+            const d = DOMAINS[q.domain] || {};
+            // Queue header
+            document.getElementById('qh-name').textContent = `${d.icon || '🏢'} ${q.name}`;
+            document.getElementById('qh-meta').textContent = `${d.name || q.domain} · ${q.service} · ID: ${q.id}`;
+            show('queue-header');
+            show('board-card');
+            show('progress-section');
+
+            // Banners
+            document.getElementById('banner-paused').style.display = q.status === 'paused' ? 'block' : 'none';
+            document.getElementById('banner-closed').style.display = q.status === 'closed' ? 'block' : 'none';
+
+            // Show join form only if not already queued and not closed
+            if (!myToken && q.status !== 'closed') show('join-form');
+            else if (myToken) showTokenCard(q);
+
+            refreshLive();
+        }
+
+        function refreshLive() {
+            if (!activeQueueId) return;
+            const q = QueueState.getQueue(activeQueueId);
+            if (!q) return;
+            const stats = QueueState.getStats(activeQueueId);
+            const serving = q.tokens.find(t => t.status === 'serving');
+            document.getElementById('board-num').textContent = serving ? `#${serving.token}` : '—';
+            document.getElementById('board-name').textContent = serving ? serving.name : 'Waiting to start';
+            document.getElementById('board-waiting').textContent = stats.waiting;
+            document.getElementById('board-done').textContent = stats.done;
+            // Progress bar
+            const total = stats.total;
+            const done = stats.done + stats.skipped;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById('progress-fill').style.width = `${pct}%`;
+            document.getElementById('progress-text').textContent = `${done} / ${total} served`;
+            // If I have a token
+            if (myToken) {
+                const myTok = q.tokens.find(t => t.token === myToken);
+                if (myTok) {
+                    if (myTok.status === 'serving') {
+                        show('banner-your-turn');
+                        document.getElementById('pos-num').textContent = '🎉';
+                        document.getElementById('wait-est').textContent = 'Now!';
+                    } else if (myTok.status === 'done' || myTok.status === 'skipped') {
+                        document.getElementById('pos-num').textContent = '✅';
+                        document.getElementById('wait-est').textContent = 'Done';
+                    } else {
+                        hide('banner-your-turn');
+                        const pos = QueueState.getTokenPosition(activeQueueId, myToken);
+                        document.getElementById('pos-num').textContent = pos !== null ? pos : '—';
+                        document.getElementById('wait-est').textContent = pos !== null ? estimateWait(pos) : '—';
+                    }
+                }
+            }
+            // Status banners
+            document.getElementById('banner-paused').style.display = q.status === 'paused' ? 'block' : 'none';
+            document.getElementById('banner-closed').style.display = q.status === 'closed' ? 'block' : 'none';
+        }
+
+        function showTokenCard(q) {
+            const tokenObj = q.tokens.find(t => t.token === myToken);
+            if (!tokenObj) return;
+            document.getElementById('token-num').textContent = `#${tokenObj.token}`;
+            document.getElementById('token-holder').textContent = tokenObj.name;
+            show('token-card');
+            hide('join-form');
+            show('after-join-actions');
+            const pos = QueueState.getTokenPosition(activeQueueId, myToken);
+            document.getElementById('pos-num').textContent = pos !== null ? pos : '✅';
+            document.getElementById('wait-est').textContent = pos !== null ? estimateWait(pos) : 'Done';
+            // Save to URL
+            history.replaceState({}, '', `?queue=${activeQueueId}&token=${myToken}`);
+        }
+
+        // Join Queue
+        document.getElementById('join-btn').addEventListener('click', () => {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            if (!name) { showToast('Please enter your name', 'error'); return; }
+            if (!activeQueueId) { showToast('No queue selected', 'error'); return; }
+            const res = QueueState.joinQueue(activeQueueId, { name, phone });
+            if (res.error) { showToast(res.error, 'error'); return; }
+            myToken = res.token;
+            showToast(`✅ Joined! Your token: #${res.token}`, 'success');
+            showTokenCard(QueueState.getQueue(activeQueueId));
+            refreshLive();
+        });
+
+        // Leave queue (just clears local state)
+        document.getElementById('leave-queue-btn').addEventListener('click', () => {
+            myToken = null;
+            hide('token-card');
+            hide('after-join-actions');
+            hide('banner-your-turn');
+            show('join-form');
+            history.replaceState({}, '', `?queue=${activeQueueId}`);
+            showToast('Left the queue view', 'info');
+        });
+
+        function show(id) { document.getElementById(id).style.display = 'block'; }
+        function hide(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+
+</html>
